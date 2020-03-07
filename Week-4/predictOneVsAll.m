@@ -30,9 +30,9 @@ X = [ones(m, 1) X];
 %       for each row.
 %       
 
-
-
-
+for i = 1:num_labels
+   [prob, p] = max(X * all_theta',[],2); 
+end
 
 
 
