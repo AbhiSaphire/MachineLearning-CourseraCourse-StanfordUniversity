@@ -16,11 +16,9 @@ function [J grad] = nnCostFunction(nn_params, ...
 
 % Reshape nn_params back into the parameters Theta1 and Theta2, the weight matrices
 % for our 2 layer neural network
-Theta1 = reshape(nn_params(1:hidden_layer_size * (input_layer_size + 1)), ...
-                 hidden_layer_size, (input_layer_size + 1));
+Theta1 = reshape(nn_params(1:hidden_layer_size * (input_layer_size + 1)), hidden_layer_size, (input_layer_size + 1));
 
-Theta2 = reshape(nn_params((1 + (hidden_layer_size * (input_layer_size + 1))):end), ...
-                 num_labels, (hidden_layer_size + 1));
+Theta2 = reshape(nn_params((1 + (hidden_layer_size * (input_layer_size + 1))):end), num_labels, (hidden_layer_size + 1));
 
 % Setup some useful variables
 m = size(X, 1);
@@ -62,24 +60,37 @@ Theta2_grad = zeros(size(Theta2));
 %               and Theta2_grad from Part 2.
 %
 
+X = [ones(m, 1), X];
+L1 = X;
+L2 = sigmoid(L1 * Theta1');
+L2 = [ones(size(L2,1), 1), L2];
+L3 = sigmoid(L2 * Theta2');
+h_x = L3;
+yK = (1:num_labels)==y;
 
+J = 1/m * sum(sum((-yK .* log(h_x)) - (1 - yK) .* log(1 - h_x)));
+J = J + ((lambda/(2*m)) * (sum(sum(Theta1(:, 2:end) .^ 2)) + sum(sum(Theta2(:, 2:end) .^ 2))));
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+for t = 1:m
+    Lay1 = X(t,:)';
+    Lay2 = [1; sigmoid(Theta1 * Lay1)];
+    Lay3 = sigmoid(Theta2 * Lay2);
+    y_K = (1:num_labels)' == y(t);
+    
+    D3 = Lay3 - y_K;
+    D2 = (Theta2' * D3) .* [1; sigmoidGradient(Theta1 * Lay1)];
+    D2 = D2(2:end);
+    
+    Theta1_grad = Theta1_grad + (D2 * Lay1');
+    Theta2_grad = Theta2_grad + (D3 * Lay2');
+end
+      
+Theta1_grad = (1/m) * Theta1_grad;
+Theta2_grad = (1/m) * Theta2_grad;
+    
+Theta1_grad = Theta1_grad + (lambda/m) * [zeros(size(Theta1, 1), 1) Theta1(:,2:end)];
+Theta2_grad = Theta2_grad + (lambda/m) * [zeros(size(Theta2, 1), 1) Theta2(:,2:end)];    
+    
 % -------------------------------------------------------------
 
 % =========================================================================
