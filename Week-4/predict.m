@@ -21,10 +21,15 @@ p = zeros(size(X, 1), 1);
 %       can use max(A, [], 2) to obtain the max for each row.
 %
 
+  Layer1 = [ones(m,1) X];
+  
+  Layer2 = sigmoid(Layer1 * Theta1');
+ 
+  Layer2 =  [ones(size(Layer2,1),1) Layer2];
 
-
-
-
+  Layer3 = sigmoid(Layer2 * Theta2');
+  
+  [prob, p] = max(Layer3,[],2); 
 
 
 
